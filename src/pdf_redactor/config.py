@@ -4,6 +4,7 @@ from pathlib import Path
 from typing import Any
 
 import yaml
+from dotenv import load_dotenv
 
 from .models import PiiType, ProcessingConfig
 
@@ -15,11 +16,15 @@ def _required(mapping: dict[str, Any], key: str) -> Any:
 
 
 def load_config(path: Path) -> ProcessingConfig:
+    load_dotenv(dotenv_path=Path.cwd() / ".env", override=False)
     with path.open("r", encoding="utf-8") as stream:
         raw = yaml.safe_load(stream) or {}
 
     processing = raw.get("processing", {})
     highlight = raw.get("highlight", {})
+    gemini = raw.get("gemini", {})
+    if "model" in gemini:
+        raise ValueError("Move gemini.model out of YAML and set GEMINI_MODEL in .env or the environment")
     color = tuple(float(value) for value in highlight.get("color", [1.0, 1.0, 0.0]))
     if len(color) != 3 or any(value < 0 or value > 1 for value in color):
         raise ValueError("highlight.color must contain three values between 0 and 1")
@@ -28,17 +33,25 @@ def load_config(path: Path) -> ProcessingConfig:
         input_folder=Path(_required(raw, "input_folder")),
         output_folder=Path(_required(raw, "output_folder")),
         protected_persons=tuple(str(value) for value in raw.get("protected_persons", [])),
-        pii_types=tuple(PiiType(value) for value in raw.get("pii_types", [PiiType.NAME.value])),
+        pii_types=tuple(PiiType(value) for value in raw.get("pii_types", ["name", "email"])),
         employee_id_patterns=tuple(str(value) for value in raw.get("employee_id_patterns", [])),
         highlight_color=color,
         highlight_opacity=float(highlight.get("opacity", 0.35)),
         concurrency=int(processing.get("concurrency", 1)),
         retry_count=int(processing.get("retry_count", 3)),
         continue_on_error=bool(processing.get("continue_on_error", True)),
-        ocr_enabled=bool(processing.get("ocr_enabled", True)),
+        ocr_enabled=bool(processing.get("ocr_enabled", False)),
+        protected_emails=tuple(str(value) for value in raw.get("protected_emails", [])),
+        gemini_chunk_words=int(gemini.get("chunk_words", 400)),
     )
     if config.concurrency < 1:
         raise ValueError("processing.concurrency must be at least 1")
+    if config.retry_count < 0:
+        raise ValueError("processing.retry_count must be nonnegative")
+    if config.gemini_chunk_words < 64:
+        raise ValueError("gemini.chunk_words must be at least 64")
+    if config.ocr_enabled:
+        raise ValueError("OCR is not implemented; use searchable PDFs and set processing.ocr_enabled: false")
     if not 0 < config.highlight_opacity <= 1:
         raise ValueError("highlight.opacity must be greater than 0 and at most 1")
     return config

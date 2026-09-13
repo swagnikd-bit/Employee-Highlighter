@@ -60,13 +60,6 @@ class SourcePage:
 
 
 @dataclass(frozen=True)
-class SourcePage:
-    source_path: Path
-    source_page_number: int
-    merged_page_number: int
-
-
-@dataclass(frozen=True)
 class Highlight:
     pii: DetectedPii
     source_path: Path
@@ -85,3 +78,5 @@ class ProcessingConfig:
     retry_count: int
     continue_on_error: bool
     ocr_enabled: bool
+    protected_emails: tuple[str, ...] = ()
+    gemini_chunk_words: int = 400

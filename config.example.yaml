@@ -2,8 +2,14 @@ input_folder: ./input
 output_folder: ./output
 protected_persons:
   - Elena Rostova
+# Add exact addresses here for guaranteed email protection, including pages
+# without enough context for Gemini to establish ownership.
+protected_emails: []
 pii_types:
   - name
+  - email
+gemini:
+  chunk_words: 400
 employee_id_patterns:
   - "\\bEMP[- ]?\\d{4,10}\\b"
 highlight:
@@ -12,5 +18,5 @@ highlight:
 processing:
   concurrency: 1
   retry_count: 3
-  continue_on_error: true
-  ocr_enabled: true
+  continue_on_error: false
+  ocr_enabled: false

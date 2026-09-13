@@ -8,27 +8,28 @@ from pathlib import Path
 import pymupdf
 
 from .config import load_config
+from .adobe.merge import merge_pdfs, validate_credentials
 from .discovery import discover_pdfs
 from .extraction.pymupdf import extract_words
 from .highlighting.pymupdf import add_highlights
-from .identification.detector import detect_pii
+from .identification.detector import GeminiDetector, detect_pii
 from .models import AuditReport, FileAudit, SourcePage
 
 LOGGER = logging.getLogger("pdf_redactor")
 
 
-def _merge_pdfs(paths: list[Path]) -> tuple[pymupdf.Document, list[SourcePage]]:
-    merged = pymupdf.open()
+def _source_pages(paths: list[Path]) -> list[SourcePage]:
     source_pages: list[SourcePage] = []
     for path in paths:
         with pymupdf.open(path) as source:
-            first_merged_page = len(merged) + 1
-            merged.insert_pdf(source)
+            if source.needs_pass:
+                raise ValueError(f"Password-protected PDF is not supported: {path.name}")
+            first_merged_page = len(source_pages) + 1
             source_pages.extend(
                 SourcePage(path, page_number, first_merged_page + page_number - 1)
                 for page_number in range(1, len(source) + 1)
             )
-    return merged, source_pages
+    return source_pages
 
 
 def _verify(
@@ -52,7 +53,12 @@ def _verify(
         ],
         "page_dimensions_match": dimensions_match,
         "protected_detections": protected_count,
-        "protected_information_not_highlighted": protected_count >= 0,
+        "protected_information_not_highlighted": all(
+            not pymupdf.Rect(detection.bounds.left, detection.bounds.top, detection.bounds.right, detection.bounds.bottom).intersects(annotation.rect)
+            for detection in detections if detection.protected
+            for annotation in highlighted[detection.page_number - 1].annots() or []
+            if annotation.type[0] == pymupdf.PDF_ANNOT_HIGHLIGHT
+        ),
         "eligible_detections": eligible_count,
         "highlights_added": highlights,
         "all_eligible_detections_highlighted": eligible_count == highlights,
@@ -66,19 +72,30 @@ def run(config_path: Path) -> AuditReport:
         raise ValueError(f"No PDF files found in {config.input_folder}")
 
     config.output_folder.mkdir(parents=True, exist_ok=True)
-    merged, source_pages = _merge_pdfs(paths)
+    validate_credentials()
+    source_pages = _source_pages(paths)
+    detector = GeminiDetector(retry_count=config.retry_count)
     original_path = config.output_folder / "merged_original.pdf"
     highlighted_path = config.output_folder / "merged_highlighted.pdf"
-    merged.save(original_path)
-
-    detections = detect_pii(
-        extract_words(merged),
-        config.protected_persons,
-        config.employee_id_patterns,
-        config.pii_types,
-    )
-    highlights = add_highlights(merged, detections, config.highlight_color, config.highlight_opacity)
-    merged.save(highlighted_path)
+    try:
+        merge_pdfs(paths, original_path)
+        with pymupdf.open(original_path) as merged:
+            if len(merged) != len(source_pages):
+                raise RuntimeError("Adobe merge returned an unexpected page count")
+            elements = extract_words(merged)
+            searchable_pages = {element.page_number for element in elements}
+            missing = sorted(set(range(1, len(merged) + 1)) - searchable_pages)
+            if missing:
+                raise ValueError(f"Pages without searchable text: {missing}. OCR them before processing.")
+            detections = detect_pii(
+                elements, config.protected_persons, config.employee_id_patterns, config.pii_types,
+                detector=detector, protected_emails=config.protected_emails,
+                chunk_words=config.gemini_chunk_words,
+            )
+            highlights = add_highlights(merged, detections, config.highlight_color, config.highlight_opacity)
+            merged.save(highlighted_path)
+    finally:
+        detector.close()
 
     original_snapshot = pymupdf.open(original_path)
     highlighted_snapshot = pymupdf.open(highlighted_path)
@@ -107,7 +124,6 @@ def run(config_path: Path) -> AuditReport:
     )
     original_snapshot.close()
     highlighted_snapshot.close()
-    merged.close()
     LOGGER.info("Created %s", original_path)
     LOGGER.info("Created %s", highlighted_path)
     LOGGER.info("Created %s", report_path)
