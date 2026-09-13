@@ -1,0 +1,16 @@
+input_folder: ./input
+output_folder: ./output
+protected_persons:
+  - Elena Rostova
+pii_types:
+  - name
+employee_id_patterns:
+  - "\\bEMP[- ]?\\d{4,10}\\b"
+highlight:
+  color: [1.0, 1.0, 0.0]
+  opacity: 0.35
+processing:
+  concurrency: 1
+  retry_count: 3
+  continue_on_error: true
+  ocr_enabled: true

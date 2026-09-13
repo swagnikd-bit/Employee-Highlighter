@@ -1,0 +1,2 @@
+[console_scripts]
+pdf-redactor = pdf_redactor.cli:main

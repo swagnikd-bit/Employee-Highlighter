@@ -1,0 +1,41 @@
+# PDF Redactor
+
+A modular Python application for merging PDFs with Adobe PDF Services, extracting coordinate-aware text, detecting configurable PII, and adding readable highlight annotations without reconstructing pages.
+
+## Current phase
+
+The initial skeleton implements configuration loading, deterministic PDF discovery, domain models, and a validation-only CLI. Adobe operations and annotation processing are represented by explicit interfaces and will be implemented in subsequent phases.
+
+## Setup
+
+1. Copy `config.example.yaml` to `config.yaml` and adjust the folders and protected names.
+2. Install the package:
+
+```powershell
+python -m pip install -e ".[test]"
+```
+
+3. Validate configuration and input discovery:
+
+```powershell
+pdf-redactor --config config.yaml --validate-only
+```
+
+Adobe credentials will be read from environment variables in a later phase. They should never be stored in YAML or source code.
+
+## Planned output
+
+```text
+output/
+├── merged_original.pdf
+├── merged_highlighted.pdf
+└── audit.json
+```
+
+## Design constraints
+
+- Adobe PDF Services is the programmatic owner for PDF merging, OCR, and structured extraction.
+- The page content is never rebuilt from extracted text.
+- Highlights are added as PDF annotations over existing page content.
+- Every source file and failure is recorded in the audit report.
+- Processing order is deterministic and designed for incremental, low-memory execution.

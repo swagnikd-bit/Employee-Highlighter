@@ -1,0 +1,98 @@
+{
+  "files": [
+    {
+      "path": "input\\01_Enterprise_Security_Audit_Log.pdf",
+      "status": "processed",
+      "pages": 2,
+      "detections": {
+        "name": 61
+      },
+      "highlights": 60,
+      "error": null
+    },
+    {
+      "path": "input\\02_Cloud_Infrastructure_Topology.pdf",
+      "status": "processed",
+      "pages": 2,
+      "detections": {
+        "name": 53
+      },
+      "highlights": 53,
+      "error": null
+    },
+    {
+      "path": "input\\03_Threat_Intelligence_ATP_Report.pdf",
+      "status": "processed",
+      "pages": 2,
+      "detections": {
+        "name": 49
+      },
+      "highlights": 48,
+      "error": null
+    },
+    {
+      "path": "input\\04_Data_Governance_Compliance_Roster.pdf",
+      "status": "processed",
+      "pages": 2,
+      "detections": {
+        "name": 52
+      },
+      "highlights": 50,
+      "error": null
+    }
+  ],
+  "verification": {
+    "source_page_count": 8,
+    "original_page_count": 8,
+    "highlighted_page_count": 8,
+    "page_count_match": true,
+    "page_order_preserved": [
+      [
+        "01_Enterprise_Security_Audit_Log.pdf",
+        1,
+        1
+      ],
+      [
+        "01_Enterprise_Security_Audit_Log.pdf",
+        2,
+        2
+      ],
+      [
+        "02_Cloud_Infrastructure_Topology.pdf",
+        1,
+        3
+      ],
+      [
+        "02_Cloud_Infrastructure_Topology.pdf",
+        2,
+        4
+      ],
+      [
+        "03_Threat_Intelligence_ATP_Report.pdf",
+        1,
+        5
+      ],
+      [
+        "03_Threat_Intelligence_ATP_Report.pdf",
+        2,
+        6
+      ],
+      [
+        "04_Data_Governance_Compliance_Roster.pdf",
+        1,
+        7
+      ],
+      [
+        "04_Data_Governance_Compliance_Roster.pdf",
+        2,
+        8
+      ]
+    ],
+    "page_dimensions_match": true,
+    "protected_detections": 4,
+    "protected_information_not_highlighted": true,
+    "eligible_detections": 211,
+    "highlights_added": 211,
+    "all_eligible_detections_highlighted": true
+  }
+}
