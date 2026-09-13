@@ -5,6 +5,7 @@ src/pdf_redactor/cli.py
 src/pdf_redactor/config.py
 src/pdf_redactor/discovery.py
 src/pdf_redactor/models.py
+src/pdf_redactor/processing.py
 src/pdf_redactor.egg-info/PKG-INFO
 src/pdf_redactor.egg-info/SOURCES.txt
 src/pdf_redactor.egg-info/dependency_links.txt
@@ -12,8 +13,19 @@ src/pdf_redactor.egg-info/entry_points.txt
 src/pdf_redactor.egg-info/requires.txt
 src/pdf_redactor.egg-info/top_level.txt
 src/pdf_redactor/adobe/__init__.py
+src/pdf_redactor/adobe/merge.py
 src/pdf_redactor/extraction/__init__.py
+src/pdf_redactor/extraction/pymupdf.py
 src/pdf_redactor/highlighting/__init__.py
+src/pdf_redactor/highlighting/pymupdf.py
 src/pdf_redactor/identification/__init__.py
+src/pdf_redactor/identification/detector.py
+tests/test_adobe.py
+tests/test_cli.py
 tests/test_config.py
 tests/test_discovery.py
+tests/test_identification.py
+tests/test_precise_highlighting.py
+tests/test_processing.py
+tests/test_rate_limits.py
+tests/test_sdk_contracts.py

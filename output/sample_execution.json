@@ -1,0 +1,8 @@
+{
+  "mode": "full_pipeline",
+  "model": "gemini-3.5-flash",
+  "excluded_person": "Elena Rostova",
+  "exit_code": 0,
+  "status": "success",
+  "new_highlighted_pdf_created": true
+}

@@ -1,9 +1,11 @@
 import pymupdf
+import pytest
 
 from pdf_redactor import processing
 
 
-def test_pipeline_with_simulated_services(tmp_path, monkeypatch):
+@pytest.mark.parametrize("override", [False, True])
+def test_pipeline_with_simulated_services(tmp_path, monkeypatch, override):
     folder = tmp_path / "input"
     folder.mkdir()
     for name, text in [("a.pdf", "Elena Rostova elena@example.com"), ("b.pdf", "Alice Smith alice@example.com")]:
@@ -29,10 +31,11 @@ def test_pipeline_with_simulated_services(tmp_path, monkeypatch):
     config = tmp_path / "config.yaml"
     config.write_text(f'input_folder: {folder.as_posix()}\noutput_folder: {(tmp_path / "output").as_posix()}\n'
                       'protected_persons: [Elena Rostova]\nprotected_emails: [elena@example.com]\n')
-    report = processing.run(config)
+    report = processing.run(config, **({"protected_persons": ("Alice Smith",),
+                                        "protected_emails": ("alice@example.com",)} if override else {}))
     assert report.verification["page_count_match"]
     assert report.verification["protected_information_not_highlighted"]
     assert report.verification["highlights_added"] == 2
     with pymupdf.open(tmp_path / "output" / "merged_highlighted.pdf") as pdf:
-        assert len(list(pdf[0].annots() or [])) == 0
-        assert len(list(pdf[1].annots() or [])) == 2
+        assert len(list(pdf[0].annots() or [])) == (2 if override else 0)
+        assert len(list(pdf[1].annots() or [])) == (0 if override else 2)

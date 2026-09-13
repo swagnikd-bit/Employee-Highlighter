@@ -5,9 +5,10 @@
       "status": "processed",
       "pages": 2,
       "detections": {
-        "name": 61
+        "name": 12,
+        "email": 10
       },
-      "highlights": 60,
+      "highlights": 19,
       "error": null
     },
     {
@@ -15,9 +16,10 @@
       "status": "processed",
       "pages": 2,
       "detections": {
-        "name": 53
+        "name": 13,
+        "email": 10
       },
-      "highlights": 53,
+      "highlights": 21,
       "error": null
     },
     {
@@ -25,9 +27,10 @@
       "status": "processed",
       "pages": 2,
       "detections": {
-        "name": 49
+        "name": 13,
+        "email": 10
       },
-      "highlights": 48,
+      "highlights": 20,
       "error": null
     },
     {
@@ -35,9 +38,10 @@
       "status": "processed",
       "pages": 2,
       "detections": {
-        "name": 52
+        "name": 16,
+        "email": 10
       },
-      "highlights": 50,
+      "highlights": 22,
       "error": null
     }
   ],
@@ -89,10 +93,10 @@
       ]
     ],
     "page_dimensions_match": true,
-    "protected_detections": 4,
+    "protected_detections": 12,
     "protected_information_not_highlighted": true,
-    "eligible_detections": 211,
-    "highlights_added": 211,
+    "eligible_detections": 82,
+    "highlights_added": 82,
     "all_eligible_detections_highlighted": true
   }
 }

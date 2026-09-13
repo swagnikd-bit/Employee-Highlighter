@@ -34,6 +34,7 @@ class DetectedPii:
     page_number: int
     bounds: BoundingBox
     protected: bool = False
+    word_bounds: tuple[BoundingBox, ...] = ()
 
 
 @dataclass

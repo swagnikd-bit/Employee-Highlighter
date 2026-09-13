@@ -10,7 +10,9 @@ from ..models import BoundingBox, TextElement
 def extract_words(document: pymupdf.Document) -> list[TextElement]:
     elements: list[TextElement] = []
     for page_number, page in enumerate(document, start=1):
-        for word in page.get_text("words", sort=True):
+        # Preserve native cell/block order: coordinate sorting interleaves
+        # neighboring table cells when a name or email wraps onto a second line.
+        for word in page.get_text("words", sort=False):
             left, top, right, bottom, text = word[:5]
             if text.strip():
                 elements.append(

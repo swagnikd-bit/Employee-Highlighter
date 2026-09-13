@@ -16,20 +16,17 @@ def add_highlights(
         if detection.protected:
             continue
         page = document[detection.page_number - 1]
-        rectangle = pymupdf.Rect(
-            detection.bounds.left,
-            detection.bounds.top,
-            detection.bounds.right,
-            detection.bounds.bottom,
-        )
+        rectangles = [pymupdf.Rect(box.left, box.top, box.right, box.bottom)
+                      for box in (detection.word_bounds or (detection.bounds,))]
         if any(
             protected.page_number == detection.page_number and protected.protected
-            and rectangle.intersects(pymupdf.Rect(protected.bounds.left, protected.bounds.top,
-                                                protected.bounds.right, protected.bounds.bottom))
+            and rectangle.intersects(pymupdf.Rect(box.left, box.top, box.right, box.bottom))
             for protected in detections
+            for box in (protected.word_bounds or (protected.bounds,))
+            for rectangle in rectangles
         ):
             raise RuntimeError("An eligible highlight overlaps protected information; review detections")
-        annotation = page.add_highlight_annot(rectangle)
+        annotation = page.add_highlight_annot([rectangle.quad for rectangle in rectangles])
         annotation.set_colors(stroke=color)
         annotation.set_opacity(opacity)
         annotation.update()

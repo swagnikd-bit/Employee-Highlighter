@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 import logging
 from collections import Counter
+from dataclasses import replace
 from pathlib import Path
 
 import pymupdf
@@ -54,10 +55,12 @@ def _verify(
         "page_dimensions_match": dimensions_match,
         "protected_detections": protected_count,
         "protected_information_not_highlighted": all(
-            not pymupdf.Rect(detection.bounds.left, detection.bounds.top, detection.bounds.right, detection.bounds.bottom).intersects(annotation.rect)
+            not pymupdf.Rect(box.left, box.top, box.right, box.bottom).intersects(pymupdf.Quad(annotation.vertices[index:index + 4]).rect)
             for detection in detections if detection.protected
+            for box in (detection.word_bounds or (detection.bounds,))
             for annotation in highlighted[detection.page_number - 1].annots() or []
             if annotation.type[0] == pymupdf.PDF_ANNOT_HIGHLIGHT
+            for index in range(0, len(annotation.vertices or []), 4)
         ),
         "eligible_detections": eligible_count,
         "highlights_added": highlights,
@@ -65,8 +68,15 @@ def _verify(
     }
 
 
-def run(config_path: Path) -> AuditReport:
+def run(
+    config_path: Path, *, protected_persons: tuple[str, ...] | None = None,
+    protected_emails: tuple[str, ...] | None = None,
+) -> AuditReport:
     config = load_config(config_path)
+    if protected_persons is not None:
+        config = replace(config, protected_persons=protected_persons)
+    if protected_emails is not None:
+        config = replace(config, protected_emails=protected_emails)
     paths = discover_pdfs(config.input_folder)
     if not paths:
         raise ValueError(f"No PDF files found in {config.input_folder}")

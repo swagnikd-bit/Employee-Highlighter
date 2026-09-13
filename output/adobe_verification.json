@@ -1,0 +1,7 @@
+{
+  "authentication": "client_secret_via_adobe_sdk",
+  "status": "success",
+  "files": 4,
+  "pages": 8,
+  "text_dimensions_and_order_match": true
+}
