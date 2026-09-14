@@ -1,0 +1,13 @@
+# Build and packaging
+# Required by pyproject.toml's setuptools build backend.
+setuptools>=68
+# Development and verification
+# Test runner for the repository's tests/ suite.
+pytest>=8.0
+PyMuPDF>=1.24
+PyYAML>=6.0
+python-dotenv>=1.0,<2
+httpx>=0.28,<1
+google-genai>=1.30,<3
+pdfservices-sdk>=4,<5
+pytest>=8.0

@@ -6,6 +6,8 @@ Highlights leave information readable and removable. This application does not r
 
 ## Contents
 
+- [Setup guide](#setup-guide)
+- [Usage guide](#usage-guide)
 - [Architecture and file structure](#architecture)
 - [Pipeline in detail](#pipeline-in-detail)
 - [Audit report and failure behavior](#audit-report-and-failure-behavior)
@@ -16,6 +18,14 @@ Highlights leave information readable and removable. This application does not r
 - [Migrating and troubleshooting](#migrating-and-troubleshooting)
 - [Limits and data flow](#limits-and-data-flow)
 - [Development](#development)
+
+## Setup guide
+
+For a complete Windows/PowerShell installation, credential configuration, validation, first run, and troubleshooting walkthrough, see [SETUP.md](SETUP.md). The one-command dependency source is [requirements.txt](requirements.txt).
+
+## Usage guide
+
+For CLI commands, configuration semantics, protection behavior, processing stages, audit fields, exit codes, and operational limits, see [USAGE.md](USAGE.md).
 
 ## Architecture
 
